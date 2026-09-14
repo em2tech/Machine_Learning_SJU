@@ -1,0 +1,89 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyM798n5g4SJVqQn/f7Kjgac",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/em2tech/Machine_Learning_SJU/blob/main/HW2/Analysis_HW2\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**Question 1: Challenges with raw Kaggle data vs. pre-packaged datasets**\n",
+        "\n",
+        "Working with the raw Kaggle .csv data, I had to actively examine df.info (), df.insull() to discover that encryption used had 1,966 missing values which I did not know in advance. With pre-packaged dataset, column names, data types, and missing values are already known and documented.\n",
+        "\n",
+        "Also the fair amount of difficulty I had wasn't with the data itself but just with but more about correctly arranging my notebook cells. I hit several Name Errors when variables weren’t defined before executing my code, also catching small syntax issues here and there."
+      ],
+      "metadata": {
+        "id": "A0-LRSDo1jpD"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**Question 2: How did you determine which columns needed imputation, and what strategy did you choose?**\n",
+        "\n",
+        "I determined which columns needed imputation by running df.. insull().sum() accross the full DataFrame, which quantifies missing values per column rather than relying on guesswork.\n",
+        "\n",
+        "In this dataset, that check revealed encryption_used had 1,966 missing values, while the other columns showed no missing data. For the imputation strategy itself, I split approach by data type, since a single strategy doesn't make sense across both:\n",
+        "\n",
+        "•\tNumeric columns (e.g., session_duration, failed_logins) used median imputation, since the median is robust to outliers, unlike the mean, which can be pulled in one direction by extreme values.\n",
+        "\n",
+        "•\tCategorical columns (including encryption_used) used most-frequent imputation, filling missing entries with whichever category appeared most often in that column, since averaging doesn't make sense for text-based categories.\n"
+      ],
+      "metadata": {
+        "id": "IPLT6hNJ_oyC"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**Question 3: How do ColumnTransformer and Pipeline prevent data leakage?**\n",
+        "\n",
+        "Pipeline and ColumnTransformer combine multiple preprocessing steps (like filling missing values, scaling, and encoding) into one object that runs everything in a single call, instead of applying each step manually. This helps in two ways:\n",
+        "\n",
+        "**Consistency**:  every column goes through the same steps in the same order every time, so nothing gets applied out of order or skipped by accident.\n",
+        "\n",
+        "**Preventing data leakage**: when a pipeline \"learns\" something from the data (like a median value or list of categories), that should only come from the training data, not the test data. If the test data influences these calculations, the model gets an unfair sneak peek at data it's supposed to be evaluated on later. A pipeline makes it easy to fit only on the training set, then apply those same rules to the test set; keeping the two properly separated."
+      ],
+      "metadata": {
+        "id": "WkCj5Bl-svZd"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "**Question 4: Based on your correlation matrix and heatmap, which features show the strongest relationships with the target variable (attack_detected), and what operational insights do these relationships reveal?**\n",
+        "\n",
+        "\n",
+        "Based on the correlation heatmap, the three features showing the strongest relationships with attack_detected are failed_logins (0.36), login_attempts (0.28), and ip_reputation_score (0.21). All three are positive correlations, meaning higher values in these features tend to co-occur with a detected attack. The remaining features; session_duration (0.04), unusual_time_access (0.01), and network_packet_size (-0.01) show almost no linear relationship with the target, sitting close to zero.\n",
+        "\n",
+        "They reveal that failed logins and login attempts signal possible brute-force attacks. Poor IP reputation also points to risk, supporting blocklists. Session length, packet size, and access time show little connection to attacks."
+      ],
+      "metadata": {
+        "id": "YjVvhnQxuvam"
+      }
+    }
+  ]
+}
